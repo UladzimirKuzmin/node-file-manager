@@ -1,8 +1,11 @@
 import readline from 'readline';
 import { retrieveNameFromArgs } from './cli/args.js';
+import { up } from './fs/up.js';
 import { ls } from './fs/ls.js';
+import { cd } from './fs/cd.js';
 
-const homeDirectory = process.env.HOME || process.env.USERPROFILE;
+let virtualCurrentDirectory = process.env.HOME || process.env.USERPROFILE;
+
 const username = retrieveNameFromArgs();
 
 console.log(`Welcome to the File Manager, ${username}!`);
@@ -14,9 +17,12 @@ const rl = readline.createInterface({
 
 function getUserInput() {
   return new Promise((resolve) => {
-    rl.question(`You are currently in ${homeDirectory}\n`, (answer) => {
-      resolve(answer);
-    });
+    rl.question(
+      `You are currently in ${virtualCurrentDirectory}\n`,
+      (answer) => {
+        resolve(answer);
+      }
+    );
   });
 }
 
@@ -31,21 +37,23 @@ async function run() {
 
     while (true) {
       const userInput = await getUserInput();
+      const command = userInput.split(' ')[0];
 
-      switch (userInput) {
+      switch (command) {
         case '.exit':
           exitGracefully();
           return;
         case 'up':
-          console.log('Going up one level...');
-          // Perform logic for going up one level
+          virtualCurrentDirectory = up(virtualCurrentDirectory);
           break;
         case 'cd':
-          console.log('Changing directory...');
-          // Perform logic for changing directory
+          virtualCurrentDirectory = await cd(
+            userInput.split(' ')[1],
+            virtualCurrentDirectory
+          );
           break;
         case 'ls':
-          await ls(homeDirectory);
+          await ls(virtualCurrentDirectory);
           break;
         default:
           console.log(`Unknown command: ${userInput}`);
