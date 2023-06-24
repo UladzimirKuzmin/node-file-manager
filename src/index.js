@@ -47,10 +47,13 @@ async function run() {
           virtualCurrentDirectory = up(virtualCurrentDirectory);
           break;
         case 'cd':
-          virtualCurrentDirectory = await cd(
+          const targetDir = await cd(
             userInput.split(' ')[1],
             virtualCurrentDirectory
           );
+          if (targetDir) {
+            virtualCurrentDirectory = targetDir;
+          }
           break;
         case 'ls':
           await ls(virtualCurrentDirectory);
