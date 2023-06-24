@@ -25,18 +25,3 @@ export const ls = async (folderPath) => {
     throw error;
   }
 };
-
-// async function listFiles() {
-//   const homeDirectory = process.env.HOME || process.env.USERPROFILE;
-//   const files = await fs.promises.readdir(homeDirectory);
-//   const fileStats = await Promise.all(files.map(async (file, index) => {
-//     const filePath = path.join(homeDirectory, file);
-//     const stats = await fs.promises.stat(filePath);
-//     return {
-//       Index: index + 1,
-//       Name: file,
-//       Type: stats.isDirectory() ? 'Directory' : 'File'
-//     };
-//   }));
-//   return fileStats;
-// }
