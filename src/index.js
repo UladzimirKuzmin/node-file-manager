@@ -1,29 +1,28 @@
-import readline from 'readline';
-import { retrieveNameFromArgs } from './cli/args.js';
-import { up } from './fs/up.js';
-import { ls } from './fs/ls.js';
-import { cd } from './fs/cd.js';
+import { promises as rlPromises } from 'readline';
 
-let virtualCurrentDirectory = process.env.HOME || process.env.USERPROFILE;
+import { retrieveNameFromArgs } from './cli/args.js';
+import * as utilCommands from './utils/commands.js';
+
+let virtualCurrentDir = process.env.HOME || process.env.USERPROFILE;
 
 const username = retrieveNameFromArgs();
+const commands = {
+  '.exit': exitGracefully,
+  ...utilCommands,
+};
 
-console.log(`Welcome to the File Manager, ${username}!`);
-
-const rl = readline.createInterface({
+const rl = rlPromises.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-function getUserInput() {
-  return new Promise((resolve) => {
-    rl.question(
-      `You are currently in ${virtualCurrentDirectory}\n`,
-      (answer) => {
-        resolve(answer);
-      }
-    );
-  });
+async function getUserInput() {
+  return await rl.question(`You are currently in ${virtualCurrentDir}\n`);
+}
+
+function parseUserInput(userInput) {
+  const [command, ...args] = userInput.trim().split(' ');
+  return { command, args };
 }
 
 function exitGracefully() {
@@ -32,39 +31,29 @@ function exitGracefully() {
 }
 
 async function run() {
+  console.log(`Welcome to the File Manager, ${username}!`);
+
   try {
     process.on('SIGINT', exitGracefully);
 
     while (true) {
       const userInput = await getUserInput();
-      const command = userInput.split(' ')[0];
+      const { command, args } = parseUserInput(userInput);
 
-      switch (command) {
-        case '.exit':
-          exitGracefully();
-          return;
-        case 'up':
-          virtualCurrentDirectory = up(virtualCurrentDirectory);
-          break;
-        case 'cd':
-          const targetDir = await cd(
-            userInput.split(' ')[1],
-            virtualCurrentDirectory
-          );
-          if (targetDir) {
-            virtualCurrentDirectory = targetDir;
-          }
-          break;
-        case 'ls':
-          await ls(virtualCurrentDirectory);
-          break;
-        default:
-          console.log(`Unknown command: ${userInput}`);
-          break;
+      const commandFn = commands[command];
+
+      if (commandFn) {
+        const targetDir = await commandFn(...[virtualCurrentDir, ...args]);
+
+        if (targetDir) {
+          virtualCurrentDir = targetDir;
+        }
+      } else {
+        console.log(`Invalid input: ${userInput}`);
       }
     }
   } catch (error) {
-    console.error(`An error occurred: ${error}`);
+    console.error(`Operation failed: ${error}`);
   } finally {
     rl.close();
   }

@@ -1,7 +1,6 @@
 import path from 'path';
 
-export const up = (virtualCurrentDirectory) => {
-  const currentDir = virtualCurrentDirectory;
+export const up = (currentDir) => {
   const parentDir = path.dirname(currentDir);
   if (currentDir === parentDir) {
     console.log('Already in the root folder.');
