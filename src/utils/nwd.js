@@ -3,6 +3,31 @@ import path from 'path';
 
 import { pathExists } from '../pathExists.js';
 
+export const up = (currentDir) => {
+  const parentDir = path.dirname(currentDir);
+  if (currentDir === parentDir) {
+    console.log('Already in the root folder.');
+  } else {
+    process.chdir(parentDir);
+    return parentDir;
+  }
+};
+
+export const cd = async (currentDir, destinationPath) => {
+  try {
+    const targetDir = path.resolve(currentDir, destinationPath);
+    const dirExists = await fsPromises.stat(targetDir);
+    if (dirExists && dirExists.isDirectory()) {
+      console.log(`Current directory changed to: ${targetDir}`);
+      return targetDir;
+    } else {
+      throw new Error(`Directory does not exist: ${destinationPath}`);
+    }
+  } catch (error) {
+    console.error(`Operation failed while changing directory: ${error}`);
+  }
+};
+
 export const ls = async (currentDir) => {
   try {
     if (await pathExists(currentDir)) {

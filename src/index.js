@@ -1,14 +1,14 @@
 import { promises as rlPromises } from 'readline';
 
 import { retrieveNameFromArgs } from './cli/args.js';
-import * as utilCommands from './utils/commands.js';
+import * as utilOperations from './utils/operations.js';
 
 let virtualCurrentDir = process.env.HOME || process.env.USERPROFILE;
 
 const username = retrieveNameFromArgs();
-const commands = {
+const operations = {
   '.exit': exitGracefully,
-  ...utilCommands,
+  ...utilOperations,
 };
 
 const rl = rlPromises.createInterface({
@@ -21,8 +21,8 @@ async function getUserInput() {
 }
 
 function parseUserInput(userInput) {
-  const [command, ...args] = userInput.trim().split(' ');
-  return { command, args };
+  const [operation, ...args] = userInput.trim().split(' ');
+  return { operation, args };
 }
 
 function exitGracefully() {
@@ -38,12 +38,12 @@ async function run() {
 
     while (true) {
       const userInput = await getUserInput();
-      const { command, args } = parseUserInput(userInput);
+      const { operation, args } = parseUserInput(userInput);
 
-      const commandFn = commands[command];
+      const operationFn = operations[operation];
 
-      if (commandFn) {
-        const targetDir = await commandFn(...[virtualCurrentDir, ...args]);
+      if (operationFn) {
+        const targetDir = await operationFn(...[virtualCurrentDir, ...args]);
 
         if (targetDir) {
           virtualCurrentDir = targetDir;
