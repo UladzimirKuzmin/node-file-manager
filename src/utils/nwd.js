@@ -3,6 +3,7 @@ import path from 'path';
 
 import { pathExists } from '../pathExists.js';
 
+// Go upper from current directory (when you are in the root folder this operation shouldn't change working directory)
 export const up = (currentDir) => {
   const parentDir = path.dirname(currentDir);
   if (currentDir === parentDir) {
@@ -13,6 +14,7 @@ export const up = (currentDir) => {
   }
 };
 
+// Go to dedicated folder from current directory (path_to_directory can be relative or absolute)
 export const cd = async (currentDir, destinationPath) => {
   try {
     const targetDir = path.resolve(currentDir, destinationPath);
@@ -28,6 +30,12 @@ export const cd = async (currentDir, destinationPath) => {
   }
 };
 
+/**
+ * Print in console list of all files and folders in current directory. List should contain:
+ * list should contain files and folder names (for files - with extension)
+ * folders and files are sorted in alphabetical order ascending, but list of folders goes first
+ * type of directory content should be marked explicitly (e.g. as a corresponding column value)
+ */
 export const ls = async (currentDir) => {
   try {
     if (await pathExists(currentDir)) {
