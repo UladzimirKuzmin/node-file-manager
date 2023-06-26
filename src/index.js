@@ -34,7 +34,7 @@ async function run() {
   console.log(`Welcome to the File Manager, ${username}!`);
 
   try {
-    process.on('SIGINT', exitGracefully);
+    rl.on('SIGINT', exitGracefully);
 
     while (true) {
       const userInput = await getUserInput();
