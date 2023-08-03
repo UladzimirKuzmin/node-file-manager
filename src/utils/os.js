@@ -46,7 +46,7 @@ function printArchitecture() {
 
 export const os = (_, flag) => {
   const f = flag.replace(/^--/, '');
-  const operation = operations[f];
+  const operation = operations[f.toLowerCase()];
 
   !!operation
     ? operation()
